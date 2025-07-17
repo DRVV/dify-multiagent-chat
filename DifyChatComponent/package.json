@@ -1,7 +1,7 @@
 {
-  "name": "@your-scope/dify-chat-component",
+  "name": "@drvv/dify-multiagent-chat",
   "version": "0.1.0",
-  "description": "A React chat component for Dify.",
+  "description": "A React chat component for Dify multi-agent conversations.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -11,9 +11,17 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "npm run build"
   },
-  "keywords": ["react", "dify", "chat", "component"],
-  "author": "Your Name",
+  "keywords": ["react", "dify", "chat", "component", "multiagent", "multi-agent", "ai"],
+  "author": "drvv",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drvv/dify-multiagent-chat.git"
+  },
+  "homepage": "https://github.com/drvv/dify-multiagent-chat#readme",
+  "bugs": {
+    "url": "https://github.com/drvv/dify-multiagent-chat/issues"
+  },
   "devDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -1,18 +1,22 @@
 'use client'
-import Image from "next/image";
-//import DifyChatComponent from 
-import { DifyChatComponent, DifyConfig } from '@your-scope/dify-chat-component';
+import DifyMultiagentChat, { DifyConfig } from '../DifyMultiagentChat/src/DifyMultiagentChat';
 
 export default function Home() {
   const config: DifyConfig = {
-  apiKey: 'app-dCcgIA2rSWejZZkRUxxpEFOO',
-  endpoint: 'http://localhost',
-  user: 'test-user'
-};
+    apiKey: 'app-dCcgIA2rSWejZZkRUxxpEFOO',
+    endpoint: 'http://localhost',
+    user: 'test-user'
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg" style={{ height: '100vh' }}>
-      <DifyChatComponent config={config}/>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-4xl mx-auto h-[calc(100vh-2rem)]">
+        <DifyMultiagentChat 
+          config={config}
+          title="Dify AI Assistant"
+          className="h-full"
+        />
+      </div>
     </div>
   );
 }

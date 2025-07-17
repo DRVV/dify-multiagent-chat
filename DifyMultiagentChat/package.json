@@ -1,0 +1,55 @@
+{
+  "name": "@drvv/dify-multiagent-chat",
+  "version": "0.1.0",
+  "description": "A React chat component for Dify multi-agent conversations.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "react",
+    "dify",
+    "chat",
+    "component",
+    "multiagent",
+    "multi-agent",
+    "ai"
+  ],
+  "author": "drvv",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drvv/dify-multiagent-chat.git"
+  },
+  "homepage": "https://github.com/drvv/dify-multiagent-chat#readme",
+  "bugs": {
+    "url": "https://github.com/drvv/dify-multiagent-chat/issues"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "esbuild-plugin-css-modules": "^0.3.0",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "dependencies": {
+    "eventsource-parser": "^3.0.3",
+    "zustand": "^4.5.2"
+  }
+}

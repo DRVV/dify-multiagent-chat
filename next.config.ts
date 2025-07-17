@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  transpilePackages: ['@your-scope/dify-chat-component'],
+  transpilePackages: ['@drvv/dify-multiagent-chat'],
 };
 
 export default nextConfig;

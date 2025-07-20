@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useMemo, useEffect, useRef } from 'react';
+import Markdown from 'markdown-to-jsx';
 import { ChatWindowProps, ChatMessage, SpeakerConfig } from './types';
 import styles from './ChatWindow.module.css';
+// import { AGENT_ICONS } from '../constants/agents';
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
   messages,
   speakers = [],
+  agents,
   onExport,
   className = '',
   maxHeight = '400px',
@@ -24,6 +27,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     });
     return map;
   }, [speakers]);
+
+  // Create agent lookup for efficient access
+  const agentMap = useMemo(() => {
+    const map = new Map<string, { displayName?: string; iconPath?: string }>();
+    if (agents) {
+      agents.forEach(agent => {
+        map.set(agent.name, {
+          displayName: agent.displayName,
+          iconPath: agent.iconPath
+        });
+      });
+    }
+    return map;
+  }, [agents]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -69,18 +86,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <div className={`${styles.container} ${className}`}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h3 className={styles.title}>{title}</h3>
-        <button
-          onClick={handleExport}
-          className={styles.exportButton}
-          disabled={messages.length === 0}
-          title="Export chat as JSON"
-        >
-          Export
-        </button>
-      </div>
+      {/* Header - only show if title is provided */}
+      {title && (
+        <div className={styles.header}>
+          <h3 className={styles.title}>{title}</h3>
+          <button
+            onClick={handleExport}
+            className={styles.exportButton}
+            disabled={messages.length === 0}
+            title="Export chat as JSON"
+          >
+            Export
+          </button>
+        </div>
+      )}
 
       {/* Messages Container */}
       <div 
@@ -97,13 +116,35 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           <>
             {messages.map((message) => {
               const speaker = speakerMap.get(message.speaker);
-              const displayName = message.speakerDisplayName || speaker?.displayName || message.speaker;
+              const agentInfo = agentMap.get(message.speaker);
+              
+              // Fallback on displayName
+              const displayName = message.speakerDisplayName || speaker?.displayName || agentInfo?.displayName || message.speaker;
               const isUser = message.speaker === 'user';
+
+              const speakerIconPath = !isUser && agents && agentInfo?.iconPath
+                ? agentInfo.iconPath
+                : null;
+
+              // const speakerIconPath = !isUser 
+              //   ? (AGENT_ICONS[message.speaker as keyof typeof AGENT_ICONS] || '/dify-icons/default-speaker.svg')
+              //   : null;
 
               return (
                 <div key={message.id} className={isUser ? styles.messageGroupUser : styles.messageGroup}>
                   {showSpeakers && (
                     <div className={isUser ? styles.messageHeaderUser : styles.messageHeader}>
+                      {/* Show the icon image when isUser=true */}
+                      {speakerIconPath && (
+                        <img
+                          src={speakerIconPath}
+                          alt={`${displayName} icon`}
+                          className={styles.speakerIcon}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      )}
                       <span className={styles.speakerName}>
                         {displayName}
                       </span>
@@ -115,7 +156,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     </div>
                   )}
                   <div className={isUser ? styles.messageContentUser : styles.messageContent}>
-                    {message.content}
+                    <Markdown>{message.content}</Markdown>
                   </div>
                 </div>
               );

@@ -4,10 +4,19 @@ export interface DifyConfig {
   user?: string;
 }
 
+export interface AgentConfig {
+  name: string;
+  displayName?: string;
+  iconPath?: string;
+}
+
 export interface DifyMultiagentChatProps {
   config: DifyConfig;
   className?: string;
   title?: string;
+  iconName?: string;
+  iconAlt?: string;
+  agents?: AgentConfig[];
 }
 
 export interface DifySSEEvent {

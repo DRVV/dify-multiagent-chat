@@ -12,14 +12,17 @@ import styles from './styles/DifyMultiagentChat.module.css';
 const DifyMultiagentChat: React.FC<DifyMultiagentChatProps> = ({
   config,
   className = '',
-  title = 'Dify Chat'
+  title = 'Dify Chat',
+  iconName,
+  iconAlt,
+  agents,
 }) => {
   const { 
     messages, 
     isLoading 
   } = useChatStore();
   
-  const { sendMessage } = useDifyStream(config);
+  const { sendMessage } = useDifyStream(config, agents);
 
   // Default speakers for user and assistant
   const speakers: SpeakerConfig[] = useMemo(() => [
@@ -50,11 +53,25 @@ const DifyMultiagentChat: React.FC<DifyMultiagentChatProps> = ({
 
   return (
     <div className={`${styles.container} ${className}`}>
+      {/* 独自ヘッダー */}
+      <div className={styles.customHeader}>
+        <div className={styles.titleWithLogo}>
+          {iconName && (
+            <img 
+              src={`/dify-icons/${iconName}`} 
+              alt={iconAlt} 
+              className={styles.logo} 
+            />
+          )}
+          <h3 className={styles.customTitle}>{title}</h3>
+        </div>
+      </div>
+      
       <div className={styles.chatWindowContainer}>
         <ChatWindow
           messages={displayMessages}
           speakers={speakers}
-          title={title}
+          agents={agents}
           showTimestamps={true}
           showSpeakers={true}
         />
@@ -75,4 +92,4 @@ const DifyMultiagentChat: React.FC<DifyMultiagentChatProps> = ({
 };
 
 export default DifyMultiagentChat;
-export type { DifyMultiagentChatProps, DifyConfig } from './types';
+export type { DifyMultiagentChatProps, DifyConfig, AgentConfig } from './types';

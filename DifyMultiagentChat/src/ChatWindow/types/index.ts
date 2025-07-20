@@ -1,3 +1,5 @@
+import { AgentConfig } from "../../types";
+
 export interface ChatMessage {
   id: string;
   content: string;
@@ -22,6 +24,7 @@ export interface ChatWindowProps {
   onExport?: (messages: ChatMessage[]) => void;
   
   // Display props
+  agents?: AgentConfig[];
   className?: string;
   maxHeight?: string;
   showTimestamps?: boolean;

@@ -1,10 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { createParser, EventSourceMessage } from 'eventsource-parser';
-import { DifyConfig, DifySSEEvent, DifyRequestBody } from '../types';
+import { DifyConfig, DifySSEEvent, DifyRequestBody, AgentConfig } from '../types';
 import { useChatStore } from '../store/chatStore';
 
-
-export const useDifyStream = (config: DifyConfig) => {
+export const useDifyStream = (config: DifyConfig, agents?: AgentConfig[]) => {
   const { 
     setLoading, 
     appendStreamingMessage,
@@ -12,6 +11,16 @@ export const useDifyStream = (config: DifyConfig) => {
     conversationId,
     setConversationId 
   } = useChatStore();
+
+  const agentMap = useMemo(() => {
+    const map = new Map<string, AgentConfig>();
+    if (agents) {
+      agents.forEach(agent => {
+        map.set(agent.name, agent);
+      });
+    }
+    return map;
+  }, [agents]);
 
   const sendMessage = useCallback(async (message: string) => {
     setLoading(true);
@@ -51,8 +60,6 @@ export const useDifyStream = (config: DifyConfig) => {
 
       const parser = createParser({
         onEvent: (ev: EventSourceMessage) => {
-//          console.log('[useDifyStream] onEvent: ', ev);
-
           if (true || ev.event === 'message' || ev.event === 'node_finished' || ev.event === 'message_end' || ev.event === 'workflow_started' || ev.event === 'workflow_finished') {
             try {
               const eventData = JSON.parse(ev.data) as DifySSEEvent;
@@ -71,17 +78,31 @@ export const useDifyStream = (config: DifyConfig) => {
                 case 'node_finished':
                   // Primary event type for processing completion
                   console.log('Node finished:', eventData);
-                  if (eventData.data?.outputs?.text) {
-                    const speaker = eventData.data.title;
-                    console.log("Speaker: ", speaker);
-                    // Create a new message entry for each streaming chunk
-                    appendStreamingMessage(eventData.data.outputs.text, speaker, speaker);
+                  if (
+                    eventData.data?.outputs?.text
+                    && eventData.data.node_type == 'llm'  
+                    && eventData.data?.title
+                  ) {
+                    const shouldAcceptAgent = agents
+                      ? agentMap.has(eventData.data.title)
+                      : true;
+                    
+                    if (shouldAcceptAgent) {
+                      const speaker = eventData.data.title;
+                      const agentInfo = agentMap.get(speaker);
+                      const displayName = agentInfo?.displayName || speaker;
+
+                      // Create a new message entry for each streaming chunk
+                      console.log("Speaker: ", speaker, "Display name:", displayName);
+                      appendStreamingMessage(eventData.data.outputs.text, speaker, displayName);
+                    } else {
+                      console.log("Filtered out agent:", eventData.data.title);
+                    }
                   }
                   break;
                   
                 case 'message_end':
                   console.log('message_end:', eventData.event, eventData);  
-                
                   completeStreamingMessage();
                   if (eventData.conversation_id && eventData.conversation_id !== conversationId) {
                     setConversationId(eventData.conversation_id);
@@ -112,7 +133,7 @@ export const useDifyStream = (config: DifyConfig) => {
     } finally {
       setLoading(false);
     }
-  }, [config, conversationId, setLoading, appendStreamingMessage, completeStreamingMessage, setConversationId]);
+  }, [config, conversationId, setLoading, appendStreamingMessage, completeStreamingMessage, setConversationId, agentMap]);
 
   return { sendMessage };
 };

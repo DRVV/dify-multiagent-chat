@@ -62,6 +62,8 @@ dify-chat-component-test/
 - Streaming message support
 - Customizable styling and configuration
 - TypeScript implementation example
+- Custom title and logo configuration
+- Multi-agent orchestrator setup
 
 ## 🔧 Development
 
@@ -95,6 +97,63 @@ const config = {
 ```
 
 Update these values in `app/page.tsx` to connect to your Dify instance.
+
+## 🎨 Customization
+
+## 🎨 Customization
+
+The component supports customization of titles, logos, and agent configurations:
+
+```tsx
+// Minimal setup - shows all Dify LLM nodes
+<DifyMultiagentChat config={config} />
+
+// With custom title and logo - shows all Dify LLM nodes
+<DifyMultiagentChat 
+  config={config}
+  title="Custom Chat"
+  iconName="customized-logo.svg"
+  iconAlt="Custom Logo"
+/>
+
+// With specific agents - shows only configured agents
+<DifyMultiagentChat 
+  config={config}
+  title="Multi-Agent Chat"
+  iconName="customized-logo.svg"
+  agents={[
+    {
+      name: 'Orchestrator',          // Must match Dify workflow agent name
+      displayName: 'Orchestrator',   // Display name in chat (optional)
+      iconPath: '/orchestrator.svg',
+    },
+    {
+      name: 'Assistant',             // Must match Dify workflow agent name
+      displayName: 'AI Assistant',   // Display name in chat (optional)
+      iconPath: '/assistant.svg',
+    }
+  ]}
+/>
+```
+
+### Customization Options
+
+- __title__: Custom application title (default: "Dify AI Assistant")
+- __iconName__: Main logo filename from `public` directory
+- __iconAlt__: Logo alt text for accessibility
+- __agents__: Array of agent configurations with custom names and icons
+
+#### Agent Configuration
+
+- __name__: Must exactly match the agent name defined in your Dify workflow
+- __displayName__: Custom name displayed in the chat interface (optional, defaults to `name`)
+- __iconPath__: Path to custom icon for the agent (optional)
+
+#### Agent Filtering
+
+- __Without agents prop__: All LLM nodes from your Dify workflow will be displayed
+- __With agents prop__: Only the specified agents will be shown in the chat interface
+- Agent matching is based on the `name` field corresponding to Dify workflow configuration
 
 ## 🚀 Using the Package
 

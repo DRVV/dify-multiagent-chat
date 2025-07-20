@@ -102,6 +102,8 @@
   color: #212529;
   word-wrap: break-word;
   max-width: 80%;
+  white-space: pre-line;
+  word-wrap: break-word;
 }
 
 .messageContentUser {
@@ -113,6 +115,8 @@
   line-height: 1.4;
   word-wrap: break-word;
   max-width: 80%;
+  white-space: pre-line;
+  word-wrap: break-word;
 }
 
 .emptyState {
@@ -158,4 +162,14 @@
 
 .messagesContainer::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.speakerIcon {
+  width: 3.0em;
+  height: 3.0em;
+  border-radius: 50%;
+  margin-right: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  vertical-align: middle;
 }

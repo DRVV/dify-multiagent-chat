@@ -12,7 +12,7 @@ import styles from './styles/DifyMultiagentChat.module.css';
 const DifyMultiagentChat: React.FC<DifyMultiagentChatProps> = ({
   config,
   className = '',
-  title = 'Dify Chat',
+  title = 'Dify AI Assistant',
   iconName,
   iconAlt,
   agents,
@@ -53,12 +53,11 @@ const DifyMultiagentChat: React.FC<DifyMultiagentChatProps> = ({
 
   return (
     <div className={`${styles.container} ${className}`}>
-      {/* 独自ヘッダー */}
       <div className={styles.customHeader}>
         <div className={styles.titleWithLogo}>
           {iconName && (
             <img 
-              src={`/dify-icons/${iconName}`} 
+              src={`${iconName}`} 
               alt={iconAlt} 
               className={styles.logo} 
             />

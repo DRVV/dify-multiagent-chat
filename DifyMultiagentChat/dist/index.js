@@ -1,11 +1,30 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }// src/DifyMultiagentChat.tsx
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }// src/DifyMultiagentChat.tsx
 var _react = require('react');
 
 // src/ChatWindow/index.tsx
 
+var _markdowntojsx = require('markdown-to-jsx'); var _markdowntojsx2 = _interopRequireDefault(_markdowntojsx);
 
 // src/ChatWindow/ChatWindow.module.css
 var ChatWindow_default = {};
+
+// src/constants/agents.ts
+var ALLOWED_AGENTS = [
+  "Orchestrator",
+  "IC agent",
+  "MD agent",
+  "Store sales agent",
+  "Marketing agent",
+  "GMD agent"
+];
+var AGENT_ICONS = {
+  "Orchestrator": "/dify-icons/fr-orchestrator.svg",
+  "IC agent": "/dify-icons/fr-ic-agent.svg",
+  "MD agent": "/dify-icons/fr-md-agent.svg",
+  "Store sales agent": "/dify-icons/fr-store-sales-agent.svg",
+  "Marketing agent": "/dify-icons/fr-marketing-agent.svg",
+  "GMD agent": "/dify-icons/fr-gmd-agent.svg"
+};
 
 // src/ChatWindow/index.tsx
 var _jsxruntime = require('react/jsx-runtime');
@@ -61,7 +80,7 @@ var ChatWindow = ({
     }
   };
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: `${ChatWindow_default.container} ${className}`, children: [
-    /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: ChatWindow_default.header, children: [
+    title && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: ChatWindow_default.header, children: [
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { className: ChatWindow_default.title, children: title }),
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
         "button",
@@ -88,12 +107,24 @@ var ChatWindow = ({
             const speaker = speakerMap.get(message.speaker);
             const displayName = message.speakerDisplayName || _optionalChain([speaker, 'optionalAccess', _4 => _4.displayName]) || message.speaker;
             const isUser = message.speaker === "user";
+            const speakerIconPath = !isUser ? AGENT_ICONS[message.speaker] || "/dify-icons/default-speaker.svg" : null;
             return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: isUser ? ChatWindow_default.messageGroupUser : ChatWindow_default.messageGroup, children: [
               showSpeakers && /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: isUser ? ChatWindow_default.messageHeaderUser : ChatWindow_default.messageHeader, children: [
+                !isUser && speakerIconPath && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+                  "img",
+                  {
+                    src: speakerIconPath,
+                    alt: `${displayName} icon`,
+                    className: ChatWindow_default.speakerIcon,
+                    onError: (e) => {
+                      e.currentTarget.src = "/dify-icons/default-speaker.svg";
+                    }
+                  }
+                ),
                 /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: ChatWindow_default.speakerName, children: displayName }),
                 showTimestamps && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "span", { className: ChatWindow_default.timestamp, children: formatTimestamp(message.timestamp) })
               ] }),
-              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: isUser ? ChatWindow_default.messageContentUser : ChatWindow_default.messageContent, children: message.content })
+              /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: isUser ? ChatWindow_default.messageContentUser : ChatWindow_default.messageContent, children: /* @__PURE__ */ _jsxruntime.jsx.call(void 0, _markdowntojsx2.default, { children: message.content }) })
             ] }, message.id);
           }),
           /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { ref: messagesEndRef })
@@ -265,7 +296,7 @@ var useDifyStream = (config) => {
                 //   break;
                 case "node_finished":
                   console.log("Node finished:", eventData);
-                  if (_optionalChain([eventData, 'access', _8 => _8.data, 'optionalAccess', _9 => _9.outputs, 'optionalAccess', _10 => _10.text])) {
+                  if (_optionalChain([eventData, 'access', _8 => _8.data, 'optionalAccess', _9 => _9.outputs, 'optionalAccess', _10 => _10.text]) && eventData.data.node_type == "llm" && _optionalChain([eventData, 'access', _11 => _11.data, 'optionalAccess', _12 => _12.title]) && ALLOWED_AGENTS.includes(eventData.data.title)) {
                     const speaker = eventData.data.title;
                     console.log("Speaker: ", speaker);
                     appendStreamingMessage(eventData.data.outputs.text, speaker, speaker);
@@ -309,7 +340,9 @@ var useDifyStream = (config) => {
 var DifyMultiagentChat = ({
   config,
   className = "",
-  title = "Dify Chat"
+  title = "Dify Chat",
+  iconName,
+  iconAlt
 }) => {
   const {
     messages,
@@ -335,13 +368,23 @@ var DifyMultiagentChat = ({
     return [...messages];
   }, [messages]);
   return /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: `${DifyMultiagentChat_default.container} ${className}`, children: [
+    /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "div", { className: DifyMultiagentChat_default.customHeader, children: /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: DifyMultiagentChat_default.titleWithLogo, children: [
+      iconName && /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
+        "img",
+        {
+          src: `/dify-icons/${iconName}`,
+          alt: iconAlt,
+          className: DifyMultiagentChat_default.logo
+        }
+      ),
+      /* @__PURE__ */ _jsxruntime.jsx.call(void 0, "h3", { className: DifyMultiagentChat_default.customTitle, children: title })
+    ] }) }),
     /* @__PURE__ */ _jsxruntime.jsxs.call(void 0, "div", { className: DifyMultiagentChat_default.chatWindowContainer, children: [
       /* @__PURE__ */ _jsxruntime.jsx.call(void 0, 
         ChatWindow_default2,
         {
           messages: displayMessages,
           speakers,
-          title,
           showTimestamps: true,
           showSpeakers: true
         }

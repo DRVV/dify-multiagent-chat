@@ -3,9 +3,28 @@ import { useMemo as useMemo2 } from "react";
 
 // src/ChatWindow/index.tsx
 import { useMemo, useEffect, useRef } from "react";
+import Markdown from "markdown-to-jsx";
 
 // src/ChatWindow/ChatWindow.module.css
 var ChatWindow_default = {};
+
+// src/constants/agents.ts
+var ALLOWED_AGENTS = [
+  "Orchestrator",
+  "IC agent",
+  "MD agent",
+  "Store sales agent",
+  "Marketing agent",
+  "GMD agent"
+];
+var AGENT_ICONS = {
+  "Orchestrator": "/dify-icons/fr-orchestrator.svg",
+  "IC agent": "/dify-icons/fr-ic-agent.svg",
+  "MD agent": "/dify-icons/fr-md-agent.svg",
+  "Store sales agent": "/dify-icons/fr-store-sales-agent.svg",
+  "Marketing agent": "/dify-icons/fr-marketing-agent.svg",
+  "GMD agent": "/dify-icons/fr-gmd-agent.svg"
+};
 
 // src/ChatWindow/index.tsx
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
@@ -61,7 +80,7 @@ var ChatWindow = ({
     }
   };
   return /* @__PURE__ */ jsxs("div", { className: `${ChatWindow_default.container} ${className}`, children: [
-    /* @__PURE__ */ jsxs("div", { className: ChatWindow_default.header, children: [
+    title && /* @__PURE__ */ jsxs("div", { className: ChatWindow_default.header, children: [
       /* @__PURE__ */ jsx("h3", { className: ChatWindow_default.title, children: title }),
       /* @__PURE__ */ jsx(
         "button",
@@ -88,12 +107,24 @@ var ChatWindow = ({
             const speaker = speakerMap.get(message.speaker);
             const displayName = message.speakerDisplayName || speaker?.displayName || message.speaker;
             const isUser = message.speaker === "user";
+            const speakerIconPath = !isUser ? AGENT_ICONS[message.speaker] || "/dify-icons/default-speaker.svg" : null;
             return /* @__PURE__ */ jsxs("div", { className: isUser ? ChatWindow_default.messageGroupUser : ChatWindow_default.messageGroup, children: [
               showSpeakers && /* @__PURE__ */ jsxs("div", { className: isUser ? ChatWindow_default.messageHeaderUser : ChatWindow_default.messageHeader, children: [
+                !isUser && speakerIconPath && /* @__PURE__ */ jsx(
+                  "img",
+                  {
+                    src: speakerIconPath,
+                    alt: `${displayName} icon`,
+                    className: ChatWindow_default.speakerIcon,
+                    onError: (e) => {
+                      e.currentTarget.src = "/dify-icons/default-speaker.svg";
+                    }
+                  }
+                ),
                 /* @__PURE__ */ jsx("span", { className: ChatWindow_default.speakerName, children: displayName }),
                 showTimestamps && /* @__PURE__ */ jsx("span", { className: ChatWindow_default.timestamp, children: formatTimestamp(message.timestamp) })
               ] }),
-              /* @__PURE__ */ jsx("div", { className: isUser ? ChatWindow_default.messageContentUser : ChatWindow_default.messageContent, children: message.content })
+              /* @__PURE__ */ jsx("div", { className: isUser ? ChatWindow_default.messageContentUser : ChatWindow_default.messageContent, children: /* @__PURE__ */ jsx(Markdown, { children: message.content }) })
             ] }, message.id);
           }),
           /* @__PURE__ */ jsx("div", { ref: messagesEndRef })
@@ -265,7 +296,7 @@ var useDifyStream = (config) => {
                 //   break;
                 case "node_finished":
                   console.log("Node finished:", eventData);
-                  if (eventData.data?.outputs?.text) {
+                  if (eventData.data?.outputs?.text && eventData.data.node_type == "llm" && eventData.data?.title && ALLOWED_AGENTS.includes(eventData.data.title)) {
                     const speaker = eventData.data.title;
                     console.log("Speaker: ", speaker);
                     appendStreamingMessage(eventData.data.outputs.text, speaker, speaker);
@@ -309,7 +340,9 @@ import { jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 var DifyMultiagentChat = ({
   config,
   className = "",
-  title = "Dify Chat"
+  title = "Dify Chat",
+  iconName,
+  iconAlt
 }) => {
   const {
     messages,
@@ -335,13 +368,23 @@ var DifyMultiagentChat = ({
     return [...messages];
   }, [messages]);
   return /* @__PURE__ */ jsxs3("div", { className: `${DifyMultiagentChat_default.container} ${className}`, children: [
+    /* @__PURE__ */ jsx3("div", { className: DifyMultiagentChat_default.customHeader, children: /* @__PURE__ */ jsxs3("div", { className: DifyMultiagentChat_default.titleWithLogo, children: [
+      iconName && /* @__PURE__ */ jsx3(
+        "img",
+        {
+          src: `/dify-icons/${iconName}`,
+          alt: iconAlt,
+          className: DifyMultiagentChat_default.logo
+        }
+      ),
+      /* @__PURE__ */ jsx3("h3", { className: DifyMultiagentChat_default.customTitle, children: title })
+    ] }) }),
     /* @__PURE__ */ jsxs3("div", { className: DifyMultiagentChat_default.chatWindowContainer, children: [
       /* @__PURE__ */ jsx3(
         ChatWindow_default2,
         {
           messages: displayMessages,
           speakers,
-          title,
           showTimestamps: true,
           showSpeakers: true
         }

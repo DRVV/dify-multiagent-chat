@@ -10,6 +10,8 @@ interface DifyMultiagentChatProps {
     config: DifyConfig;
     className?: string;
     title?: string;
+    iconName?: string;
+    iconAlt?: string;
 }
 
 declare const DifyMultiagentChat: React.FC<DifyMultiagentChatProps>;

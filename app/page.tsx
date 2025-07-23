@@ -3,8 +3,8 @@ import DifyMultiagentChat, { DifyConfig } from '../DifyMultiagentChat/src/DifyMu
 
 export default function Home() {
   const config: DifyConfig = {
-    apiKey: 'app-dCcgIA2rSWejZZkRUxxpEFOO',
-    endpoint: 'http://localhost',
+    apiKey: 'your-dify-api-key-here',
+    endpoint: 'http://localhost:<port>',
     user: 'test-user'
   };
 
